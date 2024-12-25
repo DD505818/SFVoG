@@ -148,4 +148,20 @@ export class AgentManager {
   getSharedInsights(): Map<string, any> {
     return this.knowledgeBase.getAllSharedInsights();
   }
+
+  async exchangeData(agentId: string, data: any): Promise<void> {
+    try {
+      this.knowledgeBase.addAgentInsight(agentId, data);
+    } catch (error) {
+      console.error(`Failed to exchange data for agent ${agentId}:`, error);
+    }
+  }
+
+  async shareInformation(agentId: string, insight: any): Promise<void> {
+    try {
+      this.knowledgeBase.addAgentInsight(agentId, insight);
+    } catch (error) {
+      console.error(`Failed to share information for agent ${agentId}:`, error);
+    }
+  }
 }

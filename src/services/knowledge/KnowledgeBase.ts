@@ -142,4 +142,16 @@ export class KnowledgeBase {
   getAllSharedInsights(): Map<string, any> {
     return this.sharedInsights;
   }
+
+  addAgentInsight(agentId: string, insight: any) {
+    this.sharedInsights.set(agentId, insight);
+  }
+
+  getAgentInsight(agentId: string): any {
+    return this.sharedInsights.get(agentId);
+  }
+
+  getAllAgentInsights(): Map<string, any> {
+    return this.sharedInsights;
+  }
 }
