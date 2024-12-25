@@ -64,8 +64,11 @@ export class TradingEngine {
       // Enhance decisions with knowledge base insights
       const enhancedExecutions = await this.enhanceWithKnowledge(validatedExecutions);
 
+      // Facilitate agent collaboration and information sharing
+      const collaborativeExecutions = await this.facilitateAgentCollaboration(enhancedExecutions);
+
       // Final safety check
-      const safeExecutions = this.performSafetyChecks(enhancedExecutions);
+      const safeExecutions = this.performSafetyChecks(collaborativeExecutions);
 
       return this.prioritizeExecutions(safeExecutions);
     } catch (error) {
@@ -145,6 +148,25 @@ export class TradingEngine {
         return null;
       }
     })).then(results => results.filter(Boolean) as TradeExecution[]);
+  }
+
+  private async facilitateAgentCollaboration(executions: TradeExecution[]): Promise<TradeExecution[]> {
+    const sharedInsights = this.agentManager.getSharedInsights();
+    return Promise.all(executions.map(async execution => {
+      try {
+        const agentInsights = sharedInsights.get(execution.symbol);
+        if (agentInsights) {
+          return {
+            ...execution,
+            amount: execution.amount * agentInsights.confidence
+          };
+        }
+        return execution;
+      } catch (error) {
+        console.error('Agent collaboration failed:', error);
+        return execution;
+      }
+    }));
   }
 
   private performSafetyChecks(executions: TradeExecution[]): TradeExecution[] {

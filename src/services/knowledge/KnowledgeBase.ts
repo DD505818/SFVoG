@@ -28,10 +28,12 @@ export interface CaseStudy extends KnowledgeSource {
 export class KnowledgeBase {
   private sources: Map<string, KnowledgeSource>;
   private lastSync: Date;
+  private sharedInsights: Map<string, any>;
 
   constructor() {
     this.sources = new Map();
     this.lastSync = new Date();
+    this.sharedInsights = new Map();
     this.initializeKnowledge();
   }
 
@@ -127,5 +129,29 @@ export class KnowledgeBase {
             : [source.summary]
         )
     };
+  }
+
+  addSharedInsight(agentId: string, insight: any) {
+    this.sharedInsights.set(agentId, insight);
+  }
+
+  getSharedInsight(agentId: string): any {
+    return this.sharedInsights.get(agentId);
+  }
+
+  getAllSharedInsights(): Map<string, any> {
+    return this.sharedInsights;
+  }
+
+  addAgentInsight(agentId: string, insight: any) {
+    this.sharedInsights.set(agentId, insight);
+  }
+
+  getAgentInsight(agentId: string): any {
+    return this.sharedInsights.get(agentId);
+  }
+
+  getAllAgentInsights(): Map<string, any> {
+    return this.sharedInsights;
   }
 }

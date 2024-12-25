@@ -7,13 +7,16 @@ import { HFTAgent } from './agents/HFTAgent';
 import { MacroAgent } from './agents/MacroAgent';
 import { QuantumAgent } from './agents/QuantumAgent';
 import { MemeTokenAgent } from './agents/MemeTokenAgent';
+import { KnowledgeBase } from '../knowledge/KnowledgeBase';
 
 export class AgentManager {
   private agents: Map<string, TradingAgent> = new Map();
   private riskLimits: Map<string, number> = new Map();
   private isInitialized: boolean = false;
+  private knowledgeBase: KnowledgeBase;
 
   constructor() {
+    this.knowledgeBase = new KnowledgeBase();
     this.initializeAgents();
     this.initializeRiskLimits();
   }
@@ -82,6 +85,7 @@ export class AgentManager {
         const execution = await agent.analyze(marketData);
         if (execution && this.validateRiskLimit(id, execution)) {
           executions.push(execution);
+          this.shareInsights(id, execution);
         }
       } catch (error) {
         console.error(`Agent ${agent.getName()} analysis failed:`, error);
@@ -113,6 +117,17 @@ export class AgentManager {
     });
   }
 
+  private shareInsights(agentId: string, execution: TradeExecution) {
+    const insight = {
+      symbol: execution.symbol,
+      type: execution.type,
+      amount: execution.amount,
+      price: execution.price,
+      timestamp: execution.timestamp
+    };
+    this.knowledgeBase.addSharedInsight(agentId, insight);
+  }
+
   getAgentStatus(): Array<{ name: string; status: string }> {
     return Array.from(this.agents.values()).map(agent => ({
       name: agent.getName(),
@@ -128,5 +143,25 @@ export class AgentManager {
 
   getTotalAgents(): number {
     return this.agents.size;
+  }
+
+  getSharedInsights(): Map<string, any> {
+    return this.knowledgeBase.getAllSharedInsights();
+  }
+
+  async exchangeData(agentId: string, data: any): Promise<void> {
+    try {
+      this.knowledgeBase.addAgentInsight(agentId, data);
+    } catch (error) {
+      console.error(`Failed to exchange data for agent ${agentId}:`, error);
+    }
+  }
+
+  async shareInformation(agentId: string, insight: any): Promise<void> {
+    try {
+      this.knowledgeBase.addAgentInsight(agentId, insight);
+    } catch (error) {
+      console.error(`Failed to share information for agent ${agentId}:`, error);
+    }
   }
 }
